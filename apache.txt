@@ -1,0 +1,128 @@
+Apache:
+
+
+------- HTTP METHODS ----------
+https://www.w3schools.com/tags/ref_httpmethods.asp
+HTTP Methods:
+GET - Read only
+POST - UPload/Update/remove/Add
+PUT -- Upload/Add
+HEAD --> Head code methods
+DELETE
+PATCH
+OPTIONS
+
+Difference between PUT and POST httpd methods:
+https://stackoverflow.com/questions/630453/put-vs-post-in-rest
+
+8)Static website templates deployment in Apache(httpd):
+If use Windows then follow the below steps
+Download static template from the below site and copy *.zip file into AWS EC2 servers under /tmp path using WinScp
+https://www.free-css.com/free-css-templates
+
+
+
+A)Using rpm
+$ rpm –ivh httpd-2.4.x-1.i686.rpm
+
+B) Using yum
+#yum install httpd -y
+
+
+
+C)Using Source Package
+Note: Before proceeding for httpd.2.* installation ,you please first install apr and apr-utils using below url .
+https://www.programering.com/a/MjN5YzNwATU.html
+
+Download the Source package from official Apache foundation site then Follow
+#wget https://httpd.apache.org/download.cgi/httpd-2.4.41.tar.gz into EC2
+(or) if doest work wget then follow the instructions
+
+https://httpd.apache.org/download.cgi
+
+Download this : Source: httpd-2.4.38.tar.gz [ PGP ] [ SHA256 ]
+(Note: If you use Windows machine then use "WinScp" to copy the download source code software into EC2 linux machine)
+From local terminal copy the source code(Mac) :
+localhost # scp -i KS-Origin.pem /tmp/Downloads/httpd-2.4.38.tar.gz ec2-user@99.44.33.33:/tmp
+Then login to EC2 linux machine and follow the steps
+# cd /tmp/
+# tar –zxvf httpd-2.4.6.tar.gz
+#cd httpd-2.2.26
+#./configure –prefix=/usr/local/apache/ (here you will modify the apache installation path ex: /usr/local/apache/ )
+# make
+# make install
+#cd /usr/local/apache/
+#ls -lrt
+logs
+bin
+modules
+lib
+conf
+temp
+
+
+
+Using Binary code
+http://apachemirror.wuchna.com/httpd/
+Just download Binary package and extract the HTTPD package
+$ tar –zxvf httpd-2.4.6.tar.gz
+$ cd httpd-2.4.6
+$ mv /tmp/httpd-2.4.6 /usr/local/apache
+$ /usr/local/apache/bin # ls -lrt
+$ ./apachectl -k start     (to start Apache)
+$ ./apachectl -k stop      (To stop apache)
+$ ./apachectl -t           (To check configuration status)
+
+
+What it(httpd.conf) contains inside ?
+-->We can see Port assigning (Listen)
+-->Virtual configurations
+-->Document root directory (static content deploys ex: /var/www/html/)
+-->Logs Path (access_log and error_log : /usr/local/apache2.4 ex: /vat/log/httpd/ )
+
+-->Use as workload balancing (plugin/modules/virtualhost configuration)
+-->SSL configurations using (certificate)
+-->Server name
+--->Server path
+
+
+About apache (httpd) Logs :
+[root@ip-10-0-2-151 logs]# cd /etc/httpd/logs
+
+[root@ip-10-0-2-151 logs]# ls -lrt
+-rw-r--r-- 1 root root   978 Feb  8 14:01 error_log
+-rw-r--r-- 1 root root  6704 Feb  8 14:04 access_log
+[root@ip-10-0-2-151 logs]# pwd
+/etc/httpd/logs
+[root@ip-10-0-2-151 logs]#
+
+About ERROR logs:there are three types error loggins :
+INFO
+WARNING
+ERROR
+
+About Access:Can see these in every request in access_log
+GET
+POST
+PUT
+HEAD
+
+
+
+Follow the below links for more learning HTTPD installation:
+https://linuxtechlab.com/beginner-guide-configure-apache/
+https://www.tecmint.com/install-apache-on-centos-7/
+
+
+-----------------------------------------------------------------------------------------
+             • NameBased virtualhost and IP based virtualhost
+-----------------------------------------------------------------------------------------
+Apache is also has a major advantage, that it can support multiple website hosting on a single server. There are actually two types of hosting :-
+
+1- IP address based hosting– For IP based hosting, we need to have a different IP for every website that we are hosting. These IPs are then attached to a single or multiple NICs.
+
+2- Name based Virtual hosting– Name based hosting is used to host multiple virtual websites using a single IP address.
+
+For more details :
+https://www.tecmint.com/apache-ip-based-and-name-based-virtual-hosting/
+https://linuxtechlab.com/beginner-guide-configure-apache/
