@@ -2,7 +2,7 @@ cat mongooseim.toml
 [general]
   custom = "active"
   loglevel = "warning"
-  hosts = ["mongooseim.stgmycomera.com"]
+  hosts = [""]
   registration_timeout = "infinity"
   language = "en"
   all_metrics_are_global = false
