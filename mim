@@ -1,0 +1,534 @@
+cat mongooseim.toml
+[general]
+  custom = "active"
+  loglevel = "warning"
+  hosts = ["mongooseim.stgmycomera.com"]
+  registration_timeout = "infinity"
+  language = "en"
+  all_metrics_are_global = false
+  sm_backend = "mnesia"
+  max_fsm_queue = 1000
+
+
+
+[[listen.http]]
+  port = 5280
+  transport.num_acceptors = 100
+  transport.max_connections = 5120
+
+  [[listen.http.handlers.mod_bosh]]
+    host = "_"
+    path = "/http-bind"
+
+  [[listen.http.handlers.mod_websockets]]
+    host = "_"
+    path = "/ws-xmpp"
+
+    [listen.http.handlers.mod_websockets.service]
+      access = "all"
+      shaper_rule = "fast"
+      password = "secret"
+
+[[listen.http]]
+  port = 5285
+  transport.num_acceptors = 10
+  transport.max_connections = 1024
+  tls.certfile = "/mongooseim/all.pem"
+  tls.password =  ""
+
+  [[listen.http.handlers.mod_bosh]]
+    host = "_"
+    path = "/http-bind"
+
+  [[listen.http.handlers.mod_websockets]]
+    host = "_"
+    path = "/ws-xmpp"
+
+[[listen.http]]
+  ip_address = "0.0.0.0"
+                     port = 8088
+  transport.num_acceptors = 10
+  transport.max_connections = 1024
+
+  [[listen.http.handlers.mongoose_api_admin]]
+    host = "nlb-comera-staging-mim-pvt-01-491aac8a45820c06.elb.eu-west-1.amazonaws.com"
+    path = "/api"
+  [[listen.http.handlers.cowboy_swagger_json_handler]]
+    host = "_"
+    path = "/api-docs-swagger/swagger.json"
+
+  [[listen.http.handlers.cowboy_static]]
+    host = "_"
+    path = "/api-docs/[...]"
+    type = "priv_dir"
+    app = "cowboy_swagger"
+    content_path = "swagger"
+
+[[listen.http]]
+  port = 8089
+  transport.num_acceptors = 50
+  transport.max_connections = 3072
+  protocol.compress = true
+  tls.certfile = "/mongooseim/all.pem"
+  tls.password =  ""
+
+  [[listen.http.handlers.lasse_handler]]
+    host = "_"
+    path = "/api/sse"
+    module = "mongoose_client_api_sse"
+
+  [[listen.http.handlers.mongoose_client_api_messages]]
+    host = "_"
+    path = "/api/messages/[:with]"
+
+  [[listen.http.handlers.mongoose_client_api_contacts]]
+    host = "_"
+    path = "/api/contacts/[:jid]"
+
+  [[listen.http.handlers.mongoose_client_api_rooms]]
+    host = "_"
+    path = "/api/rooms/[:id]"
+
+  [[listen.http.handlers.mongoose_client_api_rooms_config]]
+    host = "_"
+    path = "/api/rooms/[:id]/config"
+
+  [[listen.http.handlers.mongoose_client_api_rooms_users]]
+    host = "_"
+    path = "/api/rooms/:id/users/[:user]"
+
+  [[listen.http.handlers.mongoose_client_api_rooms_messages]]
+    host = "_"
+    path = "/api/rooms/[:id]/messages"
+
+  [[listen.http.handlers.cowboy_swagger_redirect_handler]]
+    host = "_"
+    path = "/api-docs"
+
+  [[listen.http.handlers.cowboy_swagger_json_handler]]
+    host = "_"
+    path = "/api-docs/swagger.json"
+
+  [[listen.http.handlers.cowboy_static]]
+    host = "_"
+    path = "/api-docs/[...]"
+    type = "priv_dir"
+    app = "cowboy_swagger"
+    content_path = "swagger"
+
+[[listen.http]]
+  ip_address = "127.0.0.1"
+  port = 5288
+  transport.num_acceptors = 10
+  transport.max_connections = 1024
+
+  [[listen.http.handlers.mongoose_api]]
+    host = "localhost"
+    path = "/api"
+    handlers = ["mongoose_api_metrics", "mongoose_api_users"]
+
+[[listen.c2s]]
+  port = 5222
+  tls.certfile = "/mongooseim/all.pem"
+  tls.mode = "starttls_required"
+
+
+  zlib = 10000
+  access = "c2s"
+  shaper = "c2s_shaper"
+  max_stanza_size = 131072
+
+
+
+
+[[listen.s2s]]
+  port = 5269
+  shaper = "s2s_shaper"
+  max_stanza_size = 131072
+
+
+
+
+[auth]
+
+  methods = ["custom"]
+
+
+  sasl_external = ["standard"]
+  sasl_mechanisms = ["scram_sha1", "plain"]
+
+[outgoing_pools.rediscluster.default]
+                    scope = "global"
+                    [outgoing_pools.rediscluster.default.connection]
+                      hosts = [
+                      {ip_address ="",port=6379},{ip_address ="",port=6379},{ip_address ="",port=6379},
+                      {ip_address ="",port=6381},{ip_address ="8",port=6381},{ip_address ="",port=6381}
+                      ]
+                      password = "8JSTVAt925jzE53Y"
+                      pool_size = 35
+                      send_timeout = 6000
+
+                  [outgoing_pools.cassandra.default]
+                    scope = "global"
+                    workers = 100
+                    [outgoing_pools.cassandra.default.connection]
+                      servers = [{ip_address = "", port = 9042}]
+                      keyspace = ""
+                      [outgoing_pools.cassandra.default.connection.auth.plain]
+                        username = ""
+                        password = ""
+
+                  [outgoing_pools.http.http_pool]
+                    scope = "global"
+                    workers = 50
+                    [outgoing_pools.http.http_pool.connection]
+                        host = ""
+                        path_prefix = "/notify/"
+                        request_timeout = 2000
+                  [outgoing_pools.rdbms.default]
+                    scope = "global"
+                    workers = 50
+                    [outgoing_pools.rdbms.default.connection]
+                      keepalive_interval = 5
+                      driver = "mysql"
+                      host = ""
+                      database = ""
+                      username = ""
+                      password = ""
+
+#[outgoing_pools.redis.global_distrib]
+#  scope = "single_host"
+#  host = "localhost"
+#  workers = 10
+#
+#[outgoing_pools.rdbms.default]
+#  scope = "global"
+#  workers = 5
+#
+#  [outgoing_pools.rdbms.default.connection]
+#    driver = "pgsql"
+#    host = "localhost"
+#    database = "ejabberd"
+#    username = "ejabberd"
+#    password = "mongooseim_secret"
+#    tls.required = true
+#    tls.verify_peer = true
+#    tls.cacertfile = "priv/ssl/cacert.pem"
+#    tls.server_name_indication = false
+
+[services.service_admin_extra]
+  submods = ["node", "accounts", "sessions", "vcard", "gdpr", "upload",
+             "roster", "last", "private", "stanza", "stats"]
+
+[services.service_mongoose_system_metrics]
+  initial_report = 300_000
+  periodic_report = 10_800_000
+
+[modules.mod_adhoc]
+
+
+
+[modules.mod_disco]
+  users_can_see_hidden_services = false
+  iqdisc.type = "queues"
+  iqdisc.workers = 50
+
+[modules.mod_commands]
+
+[modules.mod_muc_commands]
+
+[modules.mod_muc_light_commands]
+
+[modules.mod_privacy_check]
+
+[modules.mod_blocked_by_handler]
+  backend = "rdbms"
+
+[modules.mod_group_message_filter]
+
+[modules.mod_multicast]
+   backend = "rdbms"
+
+[modules.mod_last]
+              backend = "cassandra_redis"
+
+[modules.mod_stream_management]
+  buffer_max = 100
+  ack_freq = 1
+  resume_timeout = 10
+
+[modules.mod_schedule]
+
+[modules.mod_muc_light]
+                   host = "muclight.@HOST@"
+                   backend = "rdbms"
+                   equal_occupants = false
+                   legacy_mode = false
+                   rooms_per_user = "infinity"
+                   blocking = false
+                   all_can_configure = true
+                   all_can_invite = true
+                   max_occupants = 200
+                   rooms_per_page = "infinity"
+                   [[modules.mod_muc_light.config_schema]]
+                      field = "full_jids"
+                      value = ""
+                   [[modules.mod_muc_light.config_schema]]
+                      field = "admin_only"
+                      value = ""
+                   [[modules.mod_muc_light.config_schema]]
+                      field = "roomname"
+                      value = ""
+                   [[modules.mod_muc_light.config_schema]]
+                      field = "subject"
+                      value = ""
+                   [[modules.mod_muc_light.config_schema]]
+                      field = "created_at"
+                      value = ""
+                   [[modules.mod_muc_light.config_schema]]
+                      field = "image_url"
+                      value = ""
+                   [[modules.mod_muc_light.config_schema]]
+                      field = "room_description"
+                      value = ""
+                   [[modules.mod_muc_light.config_schema]]
+                      field = "link"
+                      value = ""
+                   [[modules.mod_muc_light.config_schema]]
+                      field = "type"
+                      value = ""
+                   [[modules.mod_muc_light.config_schema]]
+                      field = "created_by"
+                      value = ""
+                  [[modules.mod_muc_light.config_schema]]
+                      field = "all_can_configure"
+                      value = "true"
+                  [[modules.mod_muc_light.config_schema]]
+                       field = "all_can_invite"
+                       value = "true"
+
+
+[modules.mod_offline_stub]
+
+[modules.mod_validate_device]
+                backend = "rdbms"
+
+[modules.mod_user_privacy]
+                 backend = "rdbms"
+
+[modules.mod_time]
+
+[modules.mod_ping]
+              send_pings = true
+              ping_interval = 60
+              ping_req_timeout = 10
+              timeout_action = "kill"
+
+
+[modules.mod_privacy]
+                 backend = "rdbms"
+
+[modules.mod_profile_image_update]
+
+[modules.mod_profile_image_url_validate]
+    default_avatar_url = "https://.cloudfront.net"
+    user_avatar_url = "https://.cloudfront.net"
+
+
+[modules.mod_blocking]
+                  backend = "rdbms"
+
+[modules.mod_private]
+                 backend = "rdbms"
+                 iqdisc.type = "no_queue"
+
+
+[modules.mod_roster]
+                backend = "rdbms"
+
+[modules.mod_distributor]
+                  backend = "redis_rdbms"
+                  min_nodes = 3
+                  pre_delay = 10
+                  delay = 10
+                  post_delay = 10
+                  chunk_size = 100
+                  pool_size = 10
+                  batch_size = 10000
+                  rule_mod = "promotion_broadcast_message_rule"
+
+
+[modules.mod_sic]
+
+[modules.mod_vcard]
+  host = "vjud.@HOST@"
+
+[modules.mod_message_time_stamp]
+
+[modules.mod_bosh]
+
+[modules.mod_carboncopy]
+
+[modules.mod_caps]
+
+[modules.mod_muc_light_link]
+   backend = "rdbms"
+
+[modules.mod_channel]
+   backend = "rdbms"
+   pool_name = "http_pool"
+   path = "topics"
+   max_count = 5000
+
+[modules.mod_pubsub_custom]
+   backend = "rdbms"
+
+[modules.mod_pubsub]
+                access_createnode = "all"
+                ignore_pep_from_offline = true
+                backend = "rdbms"
+                redis_expiration = "288000"
+                last_item_cache = "redis"
+                max_items_node = 1000
+                pool_size = 50
+                plugins = ["pep"]
+                iqdisc.type = "queues"
+                iqdisc.workers = 50
+
+
+[modules.mod_event_pusher]
+                      [modules.mod_event_pusher.backend.http]
+                       pool_name = "http_pool"
+                       path = "send-message-push"
+                       callback_module = "mod_event_pusher_http_enhanced"
+
+
+[modules.mod_http_upload]
+                      host = "upload.@HOST@"
+                      backend = "s3"
+                      expiration_time = 120
+                      s3.bucket_url = ""
+                      s3.region = ""
+                      s3.access_key_id = ""
+                      s3.secret_access_key = ""
+                      s3.download_url = "https://.cloudfront.net"
+                      max_file_size = 524288000
+
+
+[modules.mod_mam_meta]
+                  backend = "cassandra"
+                  is_archivable_message = "mam_custom_utils"
+                  archive_chat_markers = true
+                  pm.user_prefs_store = false
+                  pm.is_archivable_message = "mam_pm_custom_utils"
+                  muc.host = "muclight.@HOST@"
+                  muc.is_archivable_message = "mam_muc_custom_utils"
+
+
+
+
+[shaper.normal]
+  max_rate = 50_000
+
+[shaper.fast]
+  max_rate = 50_000
+
+[shaper.mam_shaper]
+  max_rate = 1
+
+[shaper.mam_global_shaper]
+  max_rate = 1000
+
+[acl]
+  local = [
+    {user_regexp = ""}
+  ]
+
+[access]
+  max_user_sessions = [
+    {acl = "all", value = 10}
+  ]
+
+  max_user_offline_messages = [
+    {acl = "admin", value = 5000},
+    {acl = "all", value = 100}
+  ]
+
+  local = [
+    {acl = "local", value = "allow"}
+  ]
+
+  c2s = [
+    {acl = "blocked", value = "deny"},
+    {acl = "all", value = "allow"}
+  ]
+
+  c2s_shaper = [
+    {acl = "admin", value = "none"},
+    {acl = "all", value = "normal"}
+  ]
+
+  s2s_shaper = [
+    {acl = "all", value = "fast"}
+  ]
+
+  muc_admin = [
+    {acl = "admin", value = "allow"}
+  ]
+
+  muc_create = [
+    {acl = "local", value = "allow"}
+  ]
+
+  muc = [
+    {acl = "all", value = "allow"}
+  ]
+
+  register = [
+    {acl = "all", value = "allow"}
+  ]
+
+  mam_set_prefs = [
+    {acl = "all", value = "default"}
+  ]
+
+  mam_get_prefs = [
+    {acl = "all", value = "default"}
+  ]
+
+  mam_lookup_messages = [
+    {acl = "all", value = "default"}
+  ]
+
+  mam_set_prefs_shaper = [
+    {acl = "all", value = "mam_shaper"}
+  ]
+
+  mam_get_prefs_shaper = [
+    {acl = "all", value = "mam_shaper"}
+  ]
+
+  mam_lookup_messages_shaper = [
+    {acl = "all", value = "mam_shaper"}
+  ]
+
+  mam_set_prefs_global_shaper = [
+    {acl = "all", value = "mam_global_shaper"}
+  ]
+
+  mam_get_prefs_global_shaper = [
+    {acl = "all", value = "mam_global_shaper"}
+  ]
+
+  mam_lookup_messages_global_shaper = [
+    {acl = "all", value = "mam_global_shaper"}
+  ]
+
+
+#[[host_config]]
+#  host = "anonymous.localhost"
+#
+#  [host_config.auth]
+#    methods = ["anonymous"]
+#    anonymous.allow_multiple_connections = true
+#    anonymous.protocol = "both"
