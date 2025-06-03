@@ -1,0 +1,179 @@
+/etc/prosody/conf.avail/meet.abcchain.com.cfg.lua
+
+plugin_paths = { "/usr/share/jitsi-meet/prosody-plugins/" }
+
+-- domain mapper options, must at least have domain base set to use the mapper
+muc_mapper_domain_base = "meet.abcchain.com";
+
+external_service_secret = "lGsreyjnaLSDKBt3";
+--external_services = {
+--     { type = "stun", host = "meet.abcchain.com", port = 3478 },
+--     { type = "turn", host = "meet.abcchain.com", port = 3478, transport = "udp", secret = true, ttl = 86400, algorithm = "turn" },
+--     { type = "turns", host = "meet.abcchain.com", port = 5349, transport = "tcp", secret = true, ttl = 86400, algorithm = "turn" }
+--};
+
+external_services = {
+     { type = "stun", host = "service50.abcchain.com", port = 3478 },
+     { type = "turn", host = "service50.abcchain.com", port = 3478, username="34.249.190.67", password="8Uin#e@JP3%4WQsp", transport="udp"},
+     { type = "turns", host = "service50.abcchain.com", port = 443, username="34.249.190.67", password="8Uin#e@JP3%4WQsp", transport="tcp"},
+};
+
+
+cross_domain_bosh = false;
+consider_bosh_secure = true;
+cross_domain_websocket = true;
+consider_websocket_secure = true;
+-- https_ports = { }; -- Remove this line to prevent listening on port 5284
+
+-- by default prosody 0.12 sends cors headers, if you want to disable it uncomment the following (the config is available on 0.12.1)
+--http_cors_override = {
+--    bosh = {
+--        enabled = false;
+--    };
+--    websocket = {
+--        enabled = false;
+--    };
+--}
+
+-- https://ssl-config.mozilla.org/#server=haproxy&version=2.1&config=intermediate&openssl=1.1.0g&guideline=5.4
+ssl = {
+    protocol = "tlsv1_2+";
+    ciphers = "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384"
+}
+
+unlimited_jids = {
+    "focus@auth.meet.abcchain.com",
+    "jvb@auth.meet.abcchain.com"
+}
+
+VirtualHost "meet.abcchain.com"
+    authentication = "token" -- do not delete me
+    -- Properties below are modified by jitsi-meet-tokens package config
+    -- and authentication above is switched to "token"
+    app_id="jitsiprodsecret"
+    app_secret="g20I9wOY7ym5"
+    -- Assign this host a certificate for TLS, otherwise it would use the one
+    -- set in the global section (if any).
+    -- Note that old-style SSL on port 5223 only supports one certificate, and will always
+    -- use the global one.
+    ssl = {
+        key = "/etc/prosody/certs/meet.abcchain.com.key";
+        certificate = "/etc/prosody/certs/meet.abcchain.com.crt";
+    }
+    av_moderation_component = "avmoderation.meet.abcchain.com"
+    speakerstats_component = "speakerstats.meet.abcchain.com"
+    conference_duration_component = "conferenceduration.meet.abcchain.com"
+    end_conference_component = "endconference.meet.abcchain.com"
+    -- we need bosh
+    modules_enabled = {
+        "bosh";
+        "websocket";
+        "smacks";
+        "presence_identity";
+        "notify_room_destroyed";
+        "notify_occupant_joined";
+        "pubsub";
+        "ping"; -- Enable mod_ping
+        "speakerstats";
+        "external_services";
+        "conference_duration";
+        "end_conference";
+        "muc_lobby_rooms";
+        "muc_breakout_rooms";
+        "av_moderation";
+        "room_metadata";
+        "notify_occupant_became_moderator";
+    }
+    c2s_require_encryption = false
+    lobby_muc = "lobby.meet.abcchain.com"
+    breakout_rooms_muc = "breakout.meet.abcchain.com"
+    room_metadata_component = "metadata.meet.abcchain.com"
+    main_muc = "conference.meet.abcchain.com"
+    -- muc_lobby_whitelist = { "recorder.meet.abcchain.com" } -- Here we can whitelist jibri to enter lobby enabled rooms
+    smacks_max_unacked_stanzas = 5;
+    smacks_hibernation_time = 60;
+    smacks_max_hibernated_sessions = 1;
+    smacks_max_old_sessions = 1;
+    allow_empty_token = false;
+
+Component "conference.meet.abcchain.com" "muc"
+    restrict_room_creation = true
+    storage = "memory"
+    modules_enabled = {
+        "muc_meeting_id";
+        "muc_domain_mapper";
+        "polls";
+        "token_affiliation";
+        "notify_room_destroyed";
+        "notify_occupant_joined";
+        "notify_occupant_became_moderator";
+        "notify_occupant_kicked";
+        "token_verification";
+        "muc_rate_limit";
+    }
+    admins = { "focus@auth.meet.abcchain.com" }
+    muc_room_locking = false
+    muc_room_default_public_jids = true
+
+Component "breakout.meet.abcchain.com" "muc"
+    restrict_room_creation = true
+    storage = "memory"
+    modules_enabled = {
+        "muc_meeting_id";
+        "muc_domain_mapper";
+        "muc_rate_limit";
+        "polls";
+    }
+    admins = { "focus@auth.meet.abcchain.com" }
+    muc_room_locking = false
+    muc_room_default_public_jids = true
+
+-- internal muc component
+Component "internal.auth.meet.abcchain.com" "muc"
+    storage = "memory"
+    modules_enabled = {
+        "ping";
+    }
+    admins = { "focus@auth.meet.abcchain.com", "jvb@auth.meet.abcchain.com" }
+    muc_room_locking = false
+    muc_room_default_public_jids = true
+
+VirtualHost "auth.meet.abcchain.com"
+    ssl = {
+        key = "/etc/prosody/certs/auth.meet.abcchain.com.key";
+        certificate = "/etc/prosody/certs/auth.meet.abcchain.com.crt";
+    }
+    modules_enabled = {
+        "limits_exception";
+    }
+    authentication = "internal_hashed"
+
+-- Proxy to jicofo's user JID, so that it doesn't have to register as a component.
+Component "focus.meet.abcchain.com" "client_proxy"
+    target_address = "focus@auth.meet.abcchain.com"
+
+Component "speakerstats.meet.abcchain.com" "speakerstats_component"
+    muc_component = "conference.meet.abcchain.com"
+
+Component "conferenceduration.meet.abcchain.com" "conference_duration_component"
+    muc_component = "conference.meet.abcchain.com"
+
+Component "endconference.meet.abcchain.com" "end_conference"
+    muc_component = "conference.meet.abcchain.com"
+
+Component "avmoderation.meet.abcchain.com" "av_moderation_component"
+    muc_component = "conference.meet.abcchain.com"
+
+Component "lobby.meet.abcchain.com" "muc"
+    storage = "memory"
+    restrict_room_creation = true
+    muc_room_locking = false
+    muc_room_default_public_jids = true
+    modules_enabled = {
+        "muc_rate_limit";
+        "polls";
+    }
+
+Component "metadata.meet.abcchain.com" "room_metadata_component"
+    muc_component = "conference.meet.abcchain.com"
+    breakout_rooms_component = "breakout.meet.abcchain.com"
