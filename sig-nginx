@@ -30,7 +30,7 @@ map $arg_vnode $prosody_node {
 server {
     listen 80;
     listen [::]:80;
-    server_name meet.comerachain.com;
+    server_name meet.abcchain.com;
 
     location ^~ /.well-known/acme-challenge/ {
         default_type "text/plain";
@@ -62,8 +62,8 @@ server {
     add_header Strict-Transport-Security "max-age=63072000" always;
     set $prefix "";
 
-    ssl_certificate /etc/ssl/meet.comerachain.com.crt;
-    ssl_certificate_key /etc/ssl/meet.comerachain.com.key;
+    ssl_certificate /etc/ssl/meet.abcchain.com.crt;
+    ssl_certificate_key /etc/ssl/meet.abcchain.com.key;
 
     root /usr/share/jitsi-meet;
 
@@ -82,7 +82,7 @@ server {
 
     location = /config.js {
         add_header "Set-Cookie" "room=$arg_room" always;
-        alias /etc/jitsi/meet/meet.comerachain.com-config.js;
+        alias /etc/jitsi/meet/meet.abcchain.com-config.js;
     }
 
     location = /external_api.js {
