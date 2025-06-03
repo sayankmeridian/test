@@ -1,0 +1,82 @@
+jit App:
+
+/home/confcall/svc/config.yml
+micronaut:
+  server:
+    port:
+      8080
+    cors:
+      enabled: true
+      configurations:
+        ui:
+          allowed-origins:
+            - https://abc.com.*
+            - https://staticsite.abc.com.*
+            - http://1.1.2.2.*
+            - https://abc.com.*
+            - https://dev-staticsite.abc.com.*
+  http:
+    services:
+      auth-token-validator:
+        urls:
+          - https://s52.abc.com/
+      comera-backend:
+        urls:
+          - https://s52.abc.com/
+        bearer-token: ${COMERA_BACKEND_AUTH_TOKEN}
+      notifications:
+        urls:
+          - http://mongooseim-internel:8088
+        body-template-path: "templates/notificationStanzaTemplate.mustache"
+        xmpp-host: s51.abc.com
+  application:
+    name: backendConferencecalling
+  router:
+    static-resources:
+      swagger:
+        paths: classpath:META-INF/swagger
+        mapping: /swagger/**
+      swagger-ui:
+        paths: classpath:META-INF/swagger/views/swagger-ui
+        mapping: /swagger-ui/**
+netty:
+  default:
+    allocator:
+      max-order: 3
+cassandra:
+  default:
+    advanced:
+      metadata:
+        schema:
+          enabled: false
+      auth-provider:
+        class: PlainTextAuthProvider
+        username: ${CASSANDRA_USERNAME}
+        password: ${CASSANDRA_PASSWORD}
+    basic:
+      contact-points:
+        - "cassandra-prod:9042"
+      load-balancing-policy:
+        local-datacenter: dc1
+jwt:
+  generation:
+    app:
+      secret: ${COMERA_APP_SECRET}
+      id: ${COMERA_APP_ID}
+jitsi:
+  url: "https://meet.abc.com/"
+app:
+  cassandra:
+    keyspace: "conferencecalling"
+    # in seconds
+    time-to-live: 2851200
+  conference:
+    max-members: 50
+links:
+  expiration:
+    hours: 24
+    minutes: 0
+  url-pattern: "https://abc.com/abc/join-call-via-link.html?linkId={{linkId}}"
+  joining-set:
+    expiration-sec: 60
+    cleanup-interval-seconds: 10
