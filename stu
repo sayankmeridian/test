@@ -32,3 +32,76 @@ pkey=/opt/turnserver/ssl/digi-com.key
 
 # log the file
 log-file=/var/log/turnserver/turnserver.log
+
+--------------------------------------------
+
+
+
+
+
+
+
+Edit coturn service file for root permission :
+
+
+
+sudo systemctl edit coturn
+add below lines in the config file
+
+
+
+[Service]
+User=root
+Group=root
+Start Coturn service
+
+
+
+sudo systemctl start coturn.service
+Verify service status
+
+
+
+sudo systemctl status coturn.service
+
+
+
+
+--------------------------
+
+Configure log rotation
+To rotate the logs, create the following configuration file.
+
+
+
+sudo vim /etc/logrotate.d/coturn
+Configuration file
+
+
+
+/var/log/turnserver/*.log
+{
+        daily
+        rotate 7
+        compress
+        delaycompress
+        missingok
+        notifempty
+}
+Reload the daemon config
+
+
+
+sudo systemctl daemon-reload
+Restart the Coturn service
+
+
+
+sudo systemctl restart coturn.service
+Verify service status
+
+
+
+sudo systemctl status coturn.service
+
+
