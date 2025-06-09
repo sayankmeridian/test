@@ -1,0 +1,21 @@
+cat /etc/nginx/sites-enabled/default
+server {
+  listen 443 ssl;
+  listen [::]:443 ssl;
+  ssl_certificate /etc/ssl/abc/service.crt;
+  ssl_certificate_key /etc/ssl/abc/service.key;
+
+  server_name admin-dashboard.abc.com;
+
+       access_log /var/log/nginx/abc-access.log;
+       error_log /var/log/nginx/abc-error.log;
+
+       root /home/xyz/abc/build;
+       index index.html;
+
+   location / {
+               index index.html;
+               try_files $uri /index.html;
+       }
+}
+
