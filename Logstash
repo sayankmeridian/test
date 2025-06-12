@@ -1,0 +1,344 @@
+/etc/logstash/conf.d# cat abc-stage.conf
+input {
+  beats {
+    port => 5049
+    ssl => true
+    ssl_key => "/etc/logstash/certs/abc.io.key"
+    ssl_certificate => "/etc/logstash/certs/combined.crt"
+  }
+}
+filter {
+#################################################
+if "abc_STAGE_ADMIN_SERVICE" in [tags] {
+json {
+     source => "message"
+  }
+mutate {
+        rename => ["timestamp", "logtime" ]
+        remove_field => ["[event][original]"]
+}
+date {
+match => [ "logtime", "YYYY-MM-dd HH:mm:ss.SSS", "YYYY-MM-dd HH:mm:ss" ]
+target => "logtime"
+}
+
+}
+
+################################################
+
+if "abc_STAGE_NOTIFIER_SERVICE" in [tags] {
+json {
+     source => "message"
+  }
+mutate {
+        rename => ["timestamp", "logtime" ]
+        remove_field => ["[event][original]"]
+}
+date {
+match => [ "logtime", "YYYY-MM-dd HH:mm:ss.SSS" ]
+target => "logtime"
+}
+
+}
+#################################################
+if "abc_STAGE_BACKEND_API_SERVICE" in [tags] {
+json {
+     source => "message"
+  }
+mutate {
+        remove_field => [ "json", "message" ]
+        remove_field => [ "json", "agent" ]
+        remove_field => ["[event][original]"]
+        rename => ["timestamp", "logtime" ]
+   }
+date {
+match => [ "logtime", "YYYY-MM-dd HH:mm:ss.SSS" ]
+target => "logtime"
+ }
+}
+#################Signaling service############
+if "abc_STAGE_SIGNALING_SERVICE" in [tags] {
+json {
+     source => "message"
+  }
+mutate {
+        remove_field => [ "json", "message" ]
+        remove_field => [ "json", "agent" ]
+        remove_field => ["[event][original]"]
+        rename => ["timestamp", "logtime" ]
+   }
+date {
+match => [ "logtime", "YYYY-MM-dd HH:mm:ss.SSS" ]
+target => "logtime"
+ }
+}
+################ Logging service #############
+if "abc_STAGE_LOGGING_SERVICE" in [tags] {
+json {
+     source => "message"
+  }
+mutate {
+        remove_field => [ "json", "message" ]
+        remove_field => [ "json", "agent" ]
+        remove_field => ["[event][original]"]
+        rename => ["timestamp", "logtime" ]
+}
+date {
+match => [ "logtime", "YYYY-MM-dd HH:mm:ss.SSS" ]
+target => "logtime"
+}
+}
+
+##############################################
+if "abc_STAGE_SOCKET_SERVICE" in [tags] {
+json {
+     source => "message"
+  }
+#mutate needed only for messge remove
+mutate {
+        remove_field => [ "json", "message" ]
+        remove_field => [ "json", "agent" ]
+        remove_field => ["[event][original]"]
+        rename => ["timestamp", "logtime" ]
+}
+date {
+match => [ "logtime", "YYYY-MM-dd HH:mm:ss.SSS" ]
+target => "logtime"
+}
+}
+
+###########################################################
+if "abc_STAGE_CONTACT_SYNC_SERVICE" in [tags] {
+json {
+     source => "message"
+  }
+mutate {
+
+        remove_field => [ "json", "message" ]
+        remove_field => ["[event][original]"]
+        rename => ["timestamp", "logtime" ]
+        }
+date {
+match => [ "logtime", "YYYY-MM-dd HH:mm:ss.SSS" ]
+target => "logtime"
+}
+}
+############################################################
+if "abc_STAGE_BROADCAST_SERVICE" in [tags] {
+json {
+     source => "message"
+  }
+mutate {
+        rename => ["timestamp", "logtime" ]
+        remove_field => ["[event][original]"]
+}
+date {
+match => [ "logtime", "YYYY-MM-dd HH:mm:ss.SSS", "YYYY-MM-dd HH:mm:ss" ]
+target => "logtime"
+}
+
+}
+##############################################################
+if "abc_STAGE_REGISTRATION_SERVICE" in [tags] {
+json {
+     source => "message"
+  }
+mutate {
+
+        remove_field => [ "json", "message" ]
+        remove_field => [ "json", "agent" ]
+        remove_field => ["[event][original]"]
+        rename => ["timestamp", "logtime" ]
+        }
+date {
+match => [ "logtime", "YYYY-MM-dd HH:mm:ss.SSS" ]
+target => "logtime"
+}
+}
+
+###################################################################
+if "abc_STAGE_PUSH_SERVICE" in [tags] {
+json {
+     source => "message"
+  }
+mutate {
+        rename => ["timestamp", "logtime" ]
+}
+date {
+match => [ "logtime", "YYYY-MM-dd HH:mm:ss.SSS", "YYYY-MM-dd HH:mm:ss" ]
+target => "logtime"
+}
+
+}
+if "abc_STAGE_MONGOOSEIM" in [tags] {
+json {
+     source => "message"
+  }
+mutate {
+        rename => ["timestamp", "logtime" ]
+        remove_field => [ "json", "message" ]
+        remove_field => [ "json", "agent" ]
+        remove_field => ["[event][original]"]
+}
+date {
+match => [ "logtime", "YYYY-MM-dd HH:mm:ss.SSS", "YYYY-MM-dd HH:mm:ss" ]
+target => "logtime"
+}
+}
+#################################################
+if "abc_STAGE_EXPLORE_API_SERVICE" in [tags] {
+json {
+     source => "message"
+  }
+mutate {
+        remove_field => [ "json", "message" ]
+        remove_field => [ "json", "agent" ]
+        remove_field => ["[event][original]"]
+        rename => ["timestamp", "logtime" ]
+   }
+date {
+match => [ "logtime", "YYYY-MM-dd HH:mm:ss.SSS" ]
+target => "logtime"
+ }
+}
+#################################################
+if "abc_STAGE_ADMIN_DASHBOARD" in [tags] {
+json {
+     source => "message"
+  }
+mutate {
+        remove_field => [ "json", "message" ]
+        remove_field => [ "json", "agent" ]
+        remove_field => ["[event][original]"]
+        rename => ["timestamp", "logtime" ]
+   }
+date {
+match => [ "logtime", "YYYY-MM-dd HH:mm:ss.SSS" ]
+target => "logtime"
+ }
+}
+#################################################
+}
+
+output{
+
+if "abc_STAGE_ADMIN_SERVICE" in [tags] {
+  elasticsearch{
+  hosts => ["https://es01-uae-nonprod.abc.io:9200", "https://es02-uae-nonprod.abc.io:9200", "https://es03-uae-nonprod.abc.io:9200"]
+  index => "abc_stage_admin_service"
+  cacert => "/etc/logstash/certs/abc.iobundle.crt"
+  user => "administrator"
+  password => "CdjckUfqLG5gV4z6KpEsxY"
+  }
+}
+if "abc_STAGE_NOTIFIER_SERVICE" in [tags] {
+  elasticsearch{
+  hosts => ["https://es01-uae-nonprod.abc.io:9200", "https://es02-uae-nonprod.abc.io:9200", "https://es03-uae-nonprod.abc.io:9200"]
+  index => "abc_stage_notifier_service"
+  cacert => "/etc/logstash/certs/abc.iobundle.crt"
+  user => "administrator"
+  password => "CdjckUfqLG5gV4z6KpEsxY"
+  }
+}
+if "abc_STAGE_BACKEND_API_SERVICE" in [tags] {
+  elasticsearch{
+  hosts => ["https://es01-uae-nonprod.abc.io:9200", "https://es02-uae-nonprod.abc.io:9200", "https://es03-uae-nonprod.abc.io:9200"]
+  index => "abc_stage_backend_api_service"
+  cacert => "/etc/logstash/certs/abc.iobundle.crt"
+  user => "administrator"
+  password => "CdjckUfqLG5gV4z6KpEsxY"
+  }
+}
+if "abc_STAGE_LOGGING_SERVICE" in [tags] {
+  elasticsearch{
+  hosts => ["https://es01-uae-nonprod.abc.io:9200", "https://es02-uae-nonprod.abc.io:9200", "https://es03-uae-nonprod.abc.io:9200"]
+  index => "abc_stage_logging_service"
+  cacert => "/etc/logstash/certs/abc.iobundle.crt"
+  user => "administrator"
+  password => "CdjckUfqLG5gV4z6KpEsxY"
+  }
+}
+if "abc_STAGE_SOCKET_SERVICE" in [tags] {
+  elasticsearch{
+  hosts => ["https://es01-uae-nonprod.abc.io:9200", "https://es02-uae-nonprod.abc.io:9200", "https://es03-uae-nonprod.abc.io:9200"]
+  index => "abc_stage_socket_service"
+  cacert => "/etc/logstash/certs/abc.iobundle.crt"
+  user => "administrator"
+  password => "CdjckUfqLG5gV4z6KpEsxY"
+  }
+}
+if "abc_STAGE_SIGNALING_SERVICE" in [tags] {
+  elasticsearch{
+  hosts => ["https://es01-uae-nonprod.abc.io:9200", "https://es02-uae-nonprod.abc.io:9200", "https://es03-uae-nonprod.abc.io:9200"]
+  index => "abc_stage_signaling_service"
+  cacert => "/etc/logstash/certs/abc.iobundle.crt"
+  user => "administrator"
+  password => "CdjckUfqLG5gV4z6KpEsxY"
+  }
+}
+if "abc_STAGE_CONTACT_SYNC_SERVICE" in [tags] {
+  elasticsearch{
+  hosts => ["https://es01-uae-nonprod.abc.io:9200", "https://es02-uae-nonprod.abc.io:9200", "https://es03-uae-nonprod.abc.io:9200"]
+  index => "abc_stage_contact_sync_service"
+  cacert => "/etc/logstash/certs/abc.iobundle.crt"
+  user => "administrator"
+  password => "CdjckUfqLG5gV4z6KpEsxY"
+  }
+}
+if "abc_STAGE_BROADCAST_SERVICE" in [tags] {
+  elasticsearch{
+  hosts => ["https://es01-uae-nonprod.abc.io:9200", "https://es02-uae-nonprod.abc.io:9200", "https://es03-uae-nonprod.abc.io:9200"]
+  index => "abc_stage_broadcast_service"
+  cacert => "/etc/logstash/certs/abc.iobundle.crt"
+  user => "administrator"
+  password => "CdjckUfqLG5gV4z6KpEsxY"
+  }
+}
+if "abc_STAGE_PUSH_SERVICE" in [tags] {
+  elasticsearch{
+  hosts => ["https://es01-uae-nonprod.abc.io:9200", "https://es02-uae-nonprod.abc.io:9200", "https://es03-uae-nonprod.abc.io:9200"]
+  index => "abc_stage_push_service"
+  cacert => "/etc/logstash/certs/abc.iobundle.crt"
+  user => "administrator"
+  password => "CdjckUfqLG5gV4z6KpEsxY"
+  }
+}
+if "abc_STAGE_REGISTRATION_SERVICE" in [tags] {
+  elasticsearch{
+  hosts => ["https://es01-uae-nonprod.abc.io:9200", "https://es02-uae-nonprod.abc.io:9200", "https://es03-uae-nonprod.abc.io:9200"]
+  index => "abc_stage_registration_service"
+  cacert => "/etc/logstash/certs/abc.iobundle.crt"
+  user => "administrator"
+  password => "CdjckUfqLG5gV4z6KpEsxY"
+  }
+}
+if "abc_STAGE_MONGOOSEIM" in [tags] {
+  elasticsearch{
+  hosts => ["https://es01-uae-nonprod.abc.io:9200", "https://es02-uae-nonprod.abc.io:9200", "https://es03-uae-nonprod.abc.io:9200"]
+  index => "abc_stage_mongooseim"
+  cacert => "/etc/logstash/certs/abc.iobundle.crt"
+  user => "administrator"
+  password => "CdjckUfqLG5gV4z6KpEsxY"
+  }
+}
+
+if "abc_STAGE_EXPLORE_API_SERVICE" in [tags] {
+  elasticsearch{
+  hosts => ["https://es01-uae-nonprod.abc.io:9200", "https://es02-uae-nonprod.abc.io:9200", "https://es03-uae-nonprod.abc.io:9200"]
+  index => "abc_stage_explore_service"
+  cacert => "/etc/logstash/certs/abc.iobundle.crt"
+  user => "administrator"
+  password => "CdjckUfqLG5gV4z6KpEsxY"
+  }
+}
+
+if "abc_STAGE_ADMIN_DASHBOARD" in [tags] {
+  elasticsearch{
+  hosts => ["https://es01-uae-nonprod.abc.io:9200", "https://es02-uae-nonprod.abc.io:9200", "https://es03-uae-nonprod.abc.io:9200"]
+  index => "abc_stage_admindashboard"
+  cacert => "/etc/logstash/certs/abc.iobundle.crt"
+  user => "administrator"
+  password => "CdjckUfqLG5gV4z6KpEsxY"
+  }
+}
+}
