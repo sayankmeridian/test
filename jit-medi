@@ -1,0 +1,38 @@
+/etc/jitsi/videobridge/jvb.conf
+videobridge {
+    http-servers {
+        public {
+            port = 9090
+        }
+    }
+    websockets {
+        enabled = true
+        server-id = local server ip
+        domain = "meet.abcchain.com:443"
+        tls = true
+    }
+}
+
+
+
+/etc/jitsi/videobridge/sip-communicator.properties
+org.ice4j.ice.harvest.DISABLE_AWS_HARVESTER=true
+org.ice4j.ice.harvest.STUN_MAPPING_HARVESTER_ADDRESSES=service50.abcchain.com:443
+org.jitsi.videobridge.ENABLE_STATISTICS=true
+org.jitsi.videobridge.STATISTICS_TRANSPORT=muc
+org.jitsi.videobridge.xmpp.user.shard.HOSTNAME=signaling node server ip  
+org.jitsi.videobridge.xmpp.user.shard.DOMAIN=auth.meet.abcchain.com
+org.jitsi.videobridge.xmpp.user.shard.USERNAME=jvb
+org.jitsi.videobridge.xmpp.user.shard.PASSWORD=SXIWw88i
+org.jitsi.videobridge.xmpp.user.shard.MUC_JIDS=JvbBrewery@internal.auth.meet.abcchain.com
+org.jitsi.videobridge.xmpp.user.shard.MUC_NICKNAME=8a3f4696-c916-4beb-b857-12f2e590c295-9
+org.jitsi.videobridge.xmpp.user.shard.DISABLE_CERTIFICATE_VERIFICATION=true
+
+
+org.jitsi.videobridge.SINGLE_PORT_HARVESTER_PORT=10000
+org.jitsi.videobridge.TCP_HARVESTER_PORT=10000
+org.jitsi.videobridge.TCP_HARVESTER_MAPPED_PORT=10000
+org.jitsi.videobridge.DISABLE_TCP_HARVESTER=false
+
+org.ice4j.ice.harvest.NAT_HARVESTER_LOCAL_ADDRESS=local server ip
+org.ice4j.ice.harvest.NAT_HARVESTER_PUBLIC_ADDRESS=local server public Ip
