@@ -1,0 +1,24 @@
+Listen 443
+
+ProxyRequests Off
+ProxyPreserveHost On
+
+<VirtualHost *:443>
+
+  SSLEngine on
+  SSLCertificateFile "/etc/httpd/conf.d/ssl_certs/nexus.abc.io.crt"
+  SSLCertificateKeyFile "/etc/httpd/conf.d/ssl_certs/nexus.abc.io.key"
+  SSLCertificateChainFile "/etc/httpd/conf.d/ssl_certs/rootCA.pem"
+
+  AllowEncodedSlashes NoDecode
+
+  ServerName nexus.abc.io
+  ServerAdmin chandu@abc.io
+  ProxyPass / http://localhost:8081/ nocanon
+  ProxyPassReverse / http://localhost:8081/
+  RequestHeader set X-Forwarded-Proto "https"
+
+  ErrorLog logs/nexus/error.log
+  CustomLog logs/nexus/access.log common
+</VirtualHost>
+             
