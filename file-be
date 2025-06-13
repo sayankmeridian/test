@@ -8,7 +8,7 @@ filebeat.inputs:
      - /mongooseim/log/mongooseim.json.*
        #   - /mongooseim/log/crash.log
       #  tags: ["mongooseim"]
-  tags: ["COMERA_PROD_MONGOOSEIM"]
+  tags: ["ABC_PROD_MONGOOSEIM"]
 
 # ============================== Filebeat modules ==============================
 
@@ -29,9 +29,9 @@ output.logstash:
 
   hosts: ["ls01-prod.avrioc.io:5044" ]
   ssl.enabled: true
-  ssl.certificate_authorities: ["/etc/filebeat/certs/avrioc.bundle.crt"]
-  ssl.certificate: "/etc/filebeat/certs/avrioc.crt"
-  ssl.key: "/etc/filebeat/certs/avrioc.key"
+  ssl.certificate_authorities: ["/etc/filebeat/certs/abc.bundle.crt"]
+  ssl.certificate: "/etc/filebeat/certs/abc.crt"
+  ssl.key: "/etc/filebeat/certs/abc.key"
 
 processors:
   - drop_fields:
